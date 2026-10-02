@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIT Trade Assistant - Smart Money Concepts & Risk Management</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            terminal: {
+              bg: '#090D14',
+              surface: '#101724',
+              card: '#131C2C',
+              border: '#223049',
+              muted: '#64748B'
+            },
+            bull: {
+              DEFAULT: '#00E676',
+              container: '#08331E',
+              glow: 'rgba(0, 230, 118, 0.2)'
+            },
+            bear: {
+              DEFAULT: '#FF5252',
+              container: '#381014',
+              glow: 'rgba(255, 82, 82, 0.2)'
+            },
+            accent: {
+              gold: '#FFD54F',
+              cyan: '#00E5FF'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #090D14;
+      color: #F1F5F9;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090D14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #223049;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-terminal-bg text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-black">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-terminal-border bg-terminal-surface/80 backdrop-blur sticky top-0 z-50 px-4 lg:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400/20 via-cyan-500/20 to-emerald-400/20 border border-terminal-border flex items-center justify-center text-accent-gold">
+          <i data-lucide="candlestick-chart" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base lg:text-lg font-bold tracking-tight text-white">LIT Trade Assistant</h1>
+            <span class="px-2 py-0.5 text-[10px] font-bold mono bg-amber-500/10 text-accent-gold border border-amber-500/30 rounded">SL 10 PIPS</span>
+          </div>
+          <p class="text-xs text-terminal-muted hidden sm:block">MSNR & Liquidity Inducement Entry Decision System</p>
+        </div>
+      </div>
+
+      <!-- NAVIGATION TABS -->
+      <nav class="flex items-center space-x-1 sm:space-x-2 bg-terminal-card p-1 rounded-xl border border-terminal-border text-xs sm:text-sm font-medium">
+        <button onclick="switchTab('analyzer')" id="tab-btn-analyzer" class="tab-btn active px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all text-accent-cyan bg-cyan-500/10 border border-cyan-500/20">
+          <i data-lucide="scan" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Analyzer</span>
+        </button>
+        <button onclick="switchTab('calculator')" id="tab-btn-calculator" class="tab-btn px-3 py-1.5 rounded-lg flex items-center space-x-1.5 text-slate-400 hover:text-white transition-all">
+          <i data-lucide="calculator" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Calculator</span>
+        </button>
+        <button onclick="switchTab('journal')" id="tab-btn-journal" class="tab-btn px-3 py-1.5 rounded-lg flex items-center space-x-1.5 text-slate-400 hover:text-white transition-all">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Journal</span>
+        </button>
+        <button onclick="switchTab('strategy')" id="tab-btn-strategy" class="tab-btn px-3 py-1.5 rounded-lg flex items-center space-x-1.5 text-slate-400 hover:text-white transition-all">
+          <i data-lucide="compass" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Rules</span>
+        </button>
+        <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-3 py-1.5 rounded-lg flex items-center space-x-1.5 text-slate-400 hover:text-white transition-all">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Settings</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ==================== TAB 1: ANALYZER ==================== -->
+    <section id="tab-analyzer" class="tab-content block space-y-6">
+      
+      <!-- Top banner -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Setup Parameters Form (7 cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="bg-terminal-surface border border-terminal-border rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+            <div class="flex items-center justify-between border-b border-terminal-border/60 pb-3">
+              <span class="text-xs font-bold text-terminal-muted tracking-wider uppercase">1. Market & Execution Parameters</span>
+              <button onclick="applyAuto10PipPreset()" class="text-xs font-bold text-accent-gold hover:text-amber-300 mono flex items-center space-x-1 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/30 transition">
+                <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                <span>Preset 10-Pip SL</span>
+              </button>
+            </div>
+
+            <!-- Instrument Selector -->
+            <div>
+              <label class="block text-xs text-slate-400 font-medium mb-2">Instrument / Symbol</label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="setSymbol('XAUUSD')" class="sym-btn px-3 py-1.5 rounded-lg text-xs font-bold mono border transition active bg-amber-500/15 text-accent-gold border-amber-500/40">XAUUSD (Gold)</button>
+                <button type="button" onclick="setSymbol('EURUSD')" class="sym-btn px-3 py-1.5 rounded-lg text-xs font-bold mono border border-terminal-border text-slate-400 hover:text-white transition">EURUSD</button>
+                <button type="button" onclick="setSymbol('GBPUSD')" class="sym-btn px-3 py-1.5 rounded-lg text-xs font-bold mono border border-terminal-border text-slate-400 hover:text-white transition">GBPUSD</button>
+                <button type="button" onclick="setSymbol('USDJPY')" class="sym-btn px-3 py-1.5 rounded-lg text-xs font-bold mono border border-terminal-border text-slate-400 hover:text-white transition">USDJPY</button>
+                <button type="button" onclick="setSymbol('BTCUSD')" class="sym-btn px-3 py-1.5 rounded-lg text-xs font-bold mono border border-terminal-border text-slate-400 hover:text-white transition">BTCUSD</button>
+                <button type="button" onclick="setSymbol('US30')" class="sym-btn px-3 py-1.5 rounded-lg text-xs font-bold mono border border-terminal-border text-slate-400 hover:text-white transition">US30</button>
+              </div>
+            </div>
+
+            <!-- Direction Toggle & Timeframes -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 font-medium mb-2">Proposed Direction</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" id="btn-dir-buy" onclick="setDirection('BUY')" class="py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition border bg-bull-container text-bull border-bull/50">
+                    <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    <span>BUY / LONG</span>
+                  </button>
+                  <button type="button" id="btn-dir-sell" onclick="setDirection('SELL')" class="py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition border border-terminal-border text-slate-400 hover:text-white">
+                    <i data-lucide="trending-down" class="w-4 h-4"></i>
+                    <span>SELL / SHORT</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 font-medium mb-2">Execution Pipeline</label>
+                <div class="flex items-center space-x-2">
+                  <div class="flex-1 bg-terminal-card border border-terminal-border rounded-lg p-2 text-center">
+                    <span class="block text-[10px] text-terminal-muted uppercase">HTF POI</span>
+                    <span class="text-xs font-bold text-accent-cyan mono">M15</span>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-4 h-4 text-terminal-muted"></i>
+                  <div class="flex-1 bg-terminal-card border border-terminal-border rounded-lg p-2 text-center">
+                    <span class="block text-[10px] text-terminal-muted uppercase">LTF Entry</span>
+                    <span class="text-xs font-bold text-accent-gold mono">M1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- POI Type Selection -->
+            <div>
+              <label class="block text-xs text-slate-400 font-medium mb-2">MSNR Point of Interest (POI) Type</label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button type="button" onclick="setPoiType('RBS')" class="poi-btn px-2.5 py-2 rounded-lg text-xs font-semibold border text-center transition bg-cyan-500/10 text-accent-cyan border-cyan-500/40">RBS</button>
+                <button type="button" onclick="setPoiType('SBR')" class="poi-btn px-2.5 py-2 rounded-lg text-xs font-semibold border border-terminal-border text-slate-400 hover:text-white text-center transition">SBR</button>
+                <button type="button" onclick="setPoiType('QM')" class="poi-btn px-2.5 py-2 rounded-lg text-xs font-semibold border border-terminal-border text-slate-400 hover:text-white text-center transition">QM (Quasimodo)</button>
+                <button type="button" onclick="setPoiType('Engulfing OB')" class="poi-btn px-2.5 py-2 rounded-lg text-xs font-semibold border border-terminal-border text-slate-400 hover:text-white text-center transition">Engulfing OB</button>
+              </div>
+            </div>
+
+            <!-- Price Inputs Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Entry Price</label>
+                <input type="number" step="any" id="input-entry" value="2650.00" oninput="runRecalculate()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white focus:outline-none focus:border-cyan-400" />
+              </div>
+              <div>
+                <label class="block text-[11px] text-rose-400 mb-1">Stop Loss (TS Wick)</label>
+                <input type="number" step="any" id="input-sl" value="2649.00" oninput="runRecalculate()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-rose-400 focus:outline-none focus:border-rose-400" />
+              </div>
+              <div>
+                <label class="block text-[11px] text-emerald-400 mb-1">Take Profit 1</label>
+                <input type="number" step="any" id="input-tp1" value="2652.50" oninput="runRecalculate()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-emerald-400 focus:outline-none focus:border-emerald-400" />
+              </div>
+              <div>
+                <label class="block text-[11px] text-emerald-400 mb-1">Take Profit 2</label>
+                <input type="number" step="any" id="input-tp2" value="2655.00" oninput="runRecalculate()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-emerald-400 focus:outline-none focus:border-emerald-400" />
+              </div>
+            </div>
+
+            <!-- Strategy Checklist Verification -->
+            <div class="border-t border-terminal-border/60 pt-4">
+              <span class="block text-xs font-bold text-terminal-muted tracking-wider uppercase mb-3">2. Mechanical LIT + MSNR Rules Checklist</span>
+              <div class="space-y-2 text-xs">
+                <label class="flex items-center space-x-3 p-2 bg-terminal-card rounded-xl border border-terminal-border cursor-pointer hover:border-slate-600 transition">
+                  <input type="checkbox" id="chk-poi" checked onchange="runRecalculate()" class="w-4 h-4 rounded text-emerald-500 bg-terminal-bg border-slate-700 focus:ring-0 focus:ring-offset-0" />
+                  <span class="flex-1 text-slate-300">MSNR Point of Interest (POI) clearly identified on M15</span>
+                  <span class="mono text-[10px] text-emerald-400 font-bold uppercase">Pass</span>
+                </label>
+                <label class="flex items-center space-x-3 p-2 bg-terminal-card rounded-xl border border-terminal-border cursor-pointer hover:border-slate-600 transition">
+                  <input type="checkbox" id="chk-trend" checked onchange="runRecalculate()" class="w-4 h-4 rounded text-emerald-500 bg-terminal-bg border-slate-700 focus:ring-0 focus:ring-offset-0" />
+                  <span class="flex-1 text-slate-300">Higher Timeframe trend / structural alignment</span>
+                  <span class="mono text-[10px] text-emerald-400 font-bold uppercase">Pass</span>
+                </label>
+                <label class="flex items-center space-x-3 p-2 bg-terminal-card rounded-xl border border-terminal-border cursor-pointer hover:border-slate-600 transition">
+                  <input type="checkbox" id="chk-idm" checked onchange="runRecalculate()" class="w-4 h-4 rounded text-emerald-500 bg-terminal-bg border-slate-700 focus:ring-0 focus:ring-offset-0" />
+                  <span class="flex-1 text-slate-300">Inducement (IDM) retail bait level created before POI</span>
+                  <span class="mono text-[10px] text-emerald-400 font-bold uppercase">Pass</span>
+                </label>
+                <label class="flex items-center space-x-3 p-2 bg-terminal-card rounded-xl border border-terminal-border cursor-pointer hover:border-slate-600 transition">
+                  <input type="checkbox" id="chk-ts" checked onchange="runRecalculate()" class="w-4 h-4 rounded text-emerald-500 bg-terminal-bg border-slate-700 focus:ring-0 focus:ring-offset-0" />
+                  <span class="flex-1 text-slate-300">TS (Target Sweep) wick swept Inducement / liquidity pool</span>
+                  <span class="mono text-[10px] text-emerald-400 font-bold uppercase">Pass</span>
+                </label>
+                <label class="flex items-center space-x-3 p-2 bg-terminal-card rounded-xl border border-terminal-border cursor-pointer hover:border-slate-600 transition">
+                  <input type="checkbox" id="chk-rejection" checked onchange="runRecalculate()" class="w-4 h-4 rounded text-emerald-500 bg-terminal-bg border-slate-700 focus:ring-0 focus:ring-offset-0" />
+                  <span class="flex-1 text-slate-300">Candlestick Rejection (Pin Bar, long wick, or engulfing)</span>
+                  <span class="mono text-[10px] text-emerald-400 font-bold uppercase">Pass</span>
+                </label>
+                <label class="flex items-center space-x-3 p-2 bg-terminal-card rounded-xl border border-terminal-border cursor-pointer hover:border-slate-600 transition">
+                  <input type="checkbox" id="chk-mss" checked onchange="runRecalculate()" class="w-4 h-4 rounded text-emerald-500 bg-terminal-bg border-slate-700 focus:ring-0 focus:ring-offset-0" />
+                  <span class="flex-1 text-slate-300">Market Structure Shift (MSS) confirmed on M1</span>
+                  <span class="mono text-[10px] text-emerald-400 font-bold uppercase">Pass</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Optional Chart Image Upload for OpenRouter AI -->
+            <div class="border-t border-terminal-border/60 pt-4">
+              <span class="block text-xs font-bold text-terminal-muted tracking-wider uppercase mb-2">3. Chart / TradingView Screenshot (Optional for AI)</span>
+              <div class="flex items-center space-x-3">
+                <input type="file" id="chart-file-input" accept="image/*" onchange="handleChartUpload(event)" class="text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/10 file:text-accent-cyan hover:file:bg-cyan-500/20 cursor-pointer" />
+                <button type="button" id="btn-clear-chart" onclick="clearChart()" class="hidden text-xs text-rose-400 hover:text-rose-300 flex items-center space-x-1">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                  <span>Remove</span>
+                </button>
+              </div>
+              <div id="chart-preview-container" class="hidden mt-3 max-h-40 overflow-hidden rounded-xl border border-terminal-border bg-black/40">
+                <img id="chart-preview-img" src="" alt="Chart Preview" class="w-full h-auto object-cover" />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button onclick="runMechanicalScan()" class="w-full py-3 px-4 bg-bull text-terminal-bg font-bold rounded-xl text-sm flex items-center justify-center space-x-2 hover:bg-emerald-400 transition shadow-lg shadow-bull/20">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>Run LIT Strategy Scan</span>
+              </button>
+              <button onclick="runAiScan()" class="w-full py-3 px-4 border-2 border-accent-cyan text-accent-cyan hover:bg-cyan-500/10 font-bold rounded-xl text-sm flex items-center justify-center space-x-2 transition">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span>Scan with OpenRouter AI</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Results Card & Sizing Metrics (5 cols) -->
+        <div class="lg:col-span-5 space-y-5">
+          
+          <!-- Live Result Container -->
+          <div id="result-card" class="bg-terminal-surface border-2 border-bull rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5">
+            <!-- Header status badge -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span id="res-dir-badge" class="px-2.5 py-1 text-xs font-bold mono bg-bull-container text-bull border border-bull/40 rounded-lg">BUY</span>
+                <span id="res-symbol" class="text-lg font-bold mono text-white">XAUUSD</span>
+              </div>
+              <span id="res-status-badge" class="px-3 py-1 text-xs font-bold rounded-full bg-bull-container text-bull border border-bull/50">VALID SETUP</span>
+            </div>
+
+            <!-- Core message / reason -->
+            <div id="res-message-box" class="p-3.5 rounded-xl bg-bull-container/60 border border-bull/30 text-xs sm:text-sm text-slate-200 leading-relaxed">
+              High-probability trade setup validated: Inducement swept via TS into valid MSNR RBS zone, followed by aggressive candlestick rejection and M1 MSS confirmation.
+            </div>
+
+            <!-- Missing conditions warning box (hidden by default) -->
+            <div id="res-warning-box" class="hidden p-3.5 rounded-xl bg-bear-container border border-bear/40 text-xs text-rose-200 space-y-1">
+              <div class="font-bold text-bear uppercase tracking-wider flex items-center space-x-1.5">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                <span>Strategy Rule Violated:</span>
+              </div>
+              <ul id="res-missing-list" class="list-disc list-inside space-y-0.5 text-slate-300"></ul>
+            </div>
+
+            <!-- Execution Levels Grid -->
+            <div>
+              <span class="block text-[10px] font-bold text-terminal-muted uppercase tracking-wider mb-2">Trade Execution Levels</span>
+              <div class="grid grid-cols-2 gap-2.5 text-xs">
+                <div class="bg-terminal-card border border-terminal-border p-2.5 rounded-xl">
+                  <span class="block text-slate-400 text-[10px]">ENTRY LEVEL</span>
+                  <span id="res-entry" class="text-base font-bold mono text-cyan-400">2650.00</span>
+                </div>
+                <div class="bg-terminal-card border border-terminal-border p-2.5 rounded-xl">
+                  <span class="block text-slate-400 text-[10px]">STOP LOSS (<span id="res-sl-pips">10.0</span>p)</span>
+                  <span id="res-sl" class="text-base font-bold mono text-rose-400">2649.00</span>
+                </div>
+                <div class="bg-terminal-card border border-terminal-border p-2.5 rounded-xl">
+                  <span class="block text-slate-400 text-[10px]">TP 1 (<span id="res-rr-tp1">1:2.5</span> RR)</span>
+                  <span id="res-tp1" class="text-base font-bold mono text-emerald-400">2652.50</span>
+                </div>
+                <div class="bg-terminal-card border border-terminal-border p-2.5 rounded-xl">
+                  <span class="block text-slate-400 text-[10px]">TP 2 (<span id="res-rr-tp2">1:5.0</span> RR)</span>
+                  <span id="res-tp2" class="text-base font-bold mono text-emerald-400">2655.00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sizing & Money Risk Output -->
+            <div class="bg-terminal-card border border-terminal-border rounded-xl p-3.5 space-y-3">
+              <span class="block text-[10px] font-bold text-terminal-muted uppercase tracking-wider">Position Size & Risk / Reward</span>
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <span class="block text-[10px] text-slate-400">Lot Size</span>
+                  <span id="res-lots" class="text-base font-bold mono text-accent-gold">1.00 Lot</span>
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-400">Risk ($)</span>
+                  <span id="res-risk-amt" class="text-base font-bold mono text-rose-400">$100.00</span>
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-400">Target 1 ($)</span>
+                  <span id="res-profit-tp1" class="text-base font-bold mono text-emerald-400">+$250.00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save To Journal Action Button -->
+            <button onclick="saveCurrentSetupToJournal()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-terminal-bg font-bold rounded-xl text-sm flex items-center justify-center space-x-2 transition shadow-lg shadow-cyan-500/20">
+              <i data-lucide="bookmark-plus" class="w-4 h-4"></i>
+              <span>Save Setup to Trading Journal</span>
+            </button>
+          </div>
+
+          <!-- Quick Tip Card -->
+          <div class="bg-terminal-surface border border-terminal-border rounded-2xl p-4 text-xs text-slate-400 flex items-start space-x-3">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-accent-gold shrink-0 mt-0.5"></i>
+            <p>
+              <strong class="text-white">Strict Strategy Enforcement:</strong> The engine never forces a trade. If Inducement is not cleared, you will see a prominent <span class="text-bear font-bold">NO TRADE</span> warning explaining why retail stops have not been swept yet.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: CALCULATOR ==================== -->
+    <section id="tab-calculator" class="tab-content hidden space-y-6">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="bg-terminal-surface border border-terminal-border rounded-2xl p-6 shadow-xl space-y-6">
+          <div class="flex items-center justify-between border-b border-terminal-border/60 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-white">Dynamic Position & Risk Calculator</h2>
+              <p class="text-xs text-slate-400">Instant position sizing, pip value calculation, and risk-reward projections</p>
+            </div>
+            <i data-lucide="calculator" class="w-6 h-6 text-accent-cyan"></i>
+          </div>
+
+          <!-- Hero Calculated Result -->
+          <div class="bg-terminal-card border-2 border-cyan-500/40 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            <div>
+              <span class="block text-xs text-slate-400 mb-1">Recommended Position Size</span>
+              <span id="calc-res-lot" class="text-3xl font-extrabold mono text-accent-gold">1.00</span>
+              <span class="text-xs text-slate-400 ml-1">Lots</span>
+            </div>
+            <div>
+              <span class="block text-xs text-slate-400 mb-1">Total Money at Risk</span>
+              <span id="calc-res-risk" class="text-2xl font-bold mono text-rose-400">$100.00</span>
+            </div>
+            <div>
+              <span class="block text-xs text-slate-400 mb-1">Potential Reward (TP1)</span>
+              <span id="calc-res-profit" class="text-2xl font-bold mono text-emerald-400">+$250.00</span>
+            </div>
+          </div>
+
+          <!-- Inputs -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs text-slate-400 font-medium mb-1">Account Balance ($)</label>
+              <input type="number" id="calc-balance" value="10000" oninput="runStandaloneCalc()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 font-medium mb-1">Risk Percentage (%)</label>
+              <div class="flex space-x-2">
+                <input type="number" step="0.1" id="calc-risk-pct" value="1.0" oninput="runStandaloneCalc()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white focus:outline-none focus:border-cyan-400" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 font-medium mb-1">Instrument</label>
+              <select id="calc-symbol" onchange="runStandaloneCalc()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white focus:outline-none focus:border-cyan-400">
+                <option value="XAUUSD">XAUUSD (Gold 100 oz)</option>
+                <option value="EURUSD">EURUSD (Forex 100k)</option>
+                <option value="GBPUSD">GBPUSD (Forex 100k)</option>
+                <option value="USDJPY">USDJPY (Forex 100k)</option>
+                <option value="BTCUSD">BTCUSD</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Entry Price</label>
+              <input type="number" step="any" id="calc-entry" value="2650.00" oninput="runStandaloneCalc()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-rose-400 mb-1">Stop Loss</label>
+              <input type="number" step="any" id="calc-sl" value="2649.00" oninput="runStandaloneCalc()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-rose-400 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-emerald-400 mb-1">Take Profit 1</label>
+              <input type="number" step="any" id="calc-tp1" value="2652.50" oninput="runStandaloneCalc()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-emerald-400 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-emerald-400 mb-1">Take Profit 2</label>
+              <input type="number" step="any" id="calc-tp2" value="2655.00" oninput="runStandaloneCalc()" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-emerald-400 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- Specs Table -->
+          <div class="border-t border-terminal-border/60 pt-4 text-xs text-slate-400 space-y-1">
+            <p>• <strong>Gold (XAUUSD) Formula:</strong> $0.10 price move = 1 pip. Contract size = 100 oz. 1.00 lot @ 1-pip move = $10.00.</p>
+            <p>• <strong>Forex Formula:</strong> 0.0001 price move = 1 pip. Contract size = 100,000 units. 1.00 lot @ 1-pip move = $10.00.</p>
+            <p>• <strong>Lot Calculation:</strong> <code class="mono text-cyan-400">Lot = Risk_Amount / (Distance_In_Pips * Pip_Value_Per_Lot)</code></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: JOURNAL & STATS ==================== -->
+    <section id="tab-journal" class="tab-content hidden space-y-6">
+      
+      <!-- Statistics Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div class="bg-terminal-surface border border-terminal-border p-4 rounded-xl text-center">
+          <span class="block text-[10px] text-slate-400 uppercase">Win Rate</span>
+          <span id="stat-winrate" class="text-xl font-bold mono text-emerald-400">0.0%</span>
+        </div>
+        <div class="bg-terminal-surface border border-terminal-border p-4 rounded-xl text-center">
+          <span class="block text-[10px] text-slate-400 uppercase">Total Net PnL</span>
+          <span id="stat-pnl" class="text-xl font-bold mono text-white">$0.00</span>
+        </div>
+        <div class="bg-terminal-surface border border-terminal-border p-4 rounded-xl text-center">
+          <span class="block text-[10px] text-slate-400 uppercase">Average RR</span>
+          <span id="stat-rr" class="text-xl font-bold mono text-cyan-400">1:0.0</span>
+        </div>
+        <div class="bg-terminal-surface border border-terminal-border p-4 rounded-xl text-center">
+          <span class="block text-[10px] text-slate-400 uppercase">Total Trades</span>
+          <span id="stat-total" class="text-xl font-bold mono text-white">0</span>
+        </div>
+        <div class="bg-terminal-surface border border-terminal-border p-4 rounded-xl text-center">
+          <span class="block text-[10px] text-slate-400 uppercase">W / L / BE</span>
+          <span id="stat-record" class="text-xl font-bold mono text-slate-300">0 / 0 / 0</span>
+        </div>
+        <div class="bg-terminal-surface border border-terminal-border p-4 rounded-xl text-center">
+          <span class="block text-[10px] text-slate-400 uppercase">Current Streak</span>
+          <span id="stat-streak" class="text-xl font-bold mono text-accent-gold">-</span>
+        </div>
+      </div>
+
+      <!-- Controls & Filter Row -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-2 text-xs">
+          <button onclick="setJournalFilter('ALL')" class="j-filter-btn px-3 py-1.5 rounded-lg border bg-cyan-500/10 text-accent-cyan border-cyan-500/30">ALL</button>
+          <button onclick="setJournalFilter('WIN')" class="j-filter-btn px-3 py-1.5 rounded-lg border border-terminal-border text-slate-400 hover:text-white">WINS</button>
+          <button onclick="setJournalFilter('LOSS')" class="j-filter-btn px-3 py-1.5 rounded-lg border border-terminal-border text-slate-400 hover:text-white">LOSSES</button>
+          <button onclick="setJournalFilter('BREAKEVEN')" class="j-filter-btn px-3 py-1.5 rounded-lg border border-terminal-border text-slate-400 hover:text-white">BREAKEVEN</button>
+          <button onclick="setJournalFilter('PENDING')" class="j-filter-btn px-3 py-1.5 rounded-lg border border-terminal-border text-slate-400 hover:text-white">PENDING</button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="exportJournal()" class="px-3 py-1.5 bg-terminal-card hover:bg-terminal-border border border-terminal-border rounded-lg text-xs font-semibold flex items-center space-x-1.5 text-slate-300">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export JSON</span>
+          </button>
+          <button onclick="openImportModal()" class="px-3 py-1.5 bg-terminal-card hover:bg-terminal-border border border-terminal-border rounded-lg text-xs font-semibold flex items-center space-x-1.5 text-accent-gold">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            <span>Import JSON</span>
+          </button>
+          <button onclick="clearJournalConfirm()" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg text-xs font-semibold text-rose-400">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Journal Trades List -->
+      <div id="journal-list" class="space-y-3">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: STRATEGY RULES ==================== -->
+    <section id="tab-strategy" class="tab-content hidden space-y-6">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="bg-terminal-surface border border-terminal-border rounded-2xl p-6 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-terminal-border/60 pb-3">
+            <div>
+              <h2 class="text-lg font-bold text-white">LIT + MSNR Strategy Architecture</h2>
+              <p class="text-xs text-slate-400">Institutional Market Structure, Liquidity Sweeps, and Entry Mechanics</p>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-bold mono bg-amber-500/10 text-accent-gold border border-amber-500/30 rounded">SL 10 PIPS</span>
+          </div>
+
+          <!-- Candlestick Visual Anatomy Canvas -->
+          <div class="bg-terminal-card border border-terminal-border rounded-xl p-4">
+            <span class="block text-xs font-bold text-terminal-muted uppercase tracking-wider mb-2">Visual Anatomy: TS (Target Sweep) into POI Zone</span>
+            <canvas id="strategy-canvas" width="700" height="200" class="w-full h-44 bg-terminal-bg rounded-lg border border-terminal-border"></canvas>
+            <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-400 mt-2 px-1">
+              <span class="text-cyan-400 font-bold">1. Point of Interest (SBR / RBS / QM)</span>
+              <span class="text-amber-400 font-bold">2. Inducement (Retail Bait Level)</span>
+              <span class="text-rose-400 font-bold">3. TS Liquidity Sweep Wick</span>
+              <span class="text-emerald-400 font-bold">4. M1 MSS Expansion</span>
+            </div>
+          </div>
+
+          <!-- 7 MSNR Key Level Types -->
+          <div class="space-y-3 pt-2">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">The 7 MSNR Structural Level Types</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="bg-terminal-card border border-terminal-border p-3.5 rounded-xl space-y-1">
+                <span class="font-bold text-cyan-400">1. Resistance (Sell POI)</span>
+                <p class="text-slate-400">Previous swing High where selling pressure overwhelmed buyers.</p>
+              </div>
+              <div class="bg-terminal-card border border-terminal-border p-3.5 rounded-xl space-y-1">
+                <span class="font-bold text-cyan-400">2. Support (Buy POI)</span>
+                <p class="text-slate-400">Previous swing Low where buying pressure defended price.</p>
+              </div>
+              <div class="bg-terminal-card border border-terminal-border p-3.5 rounded-xl space-y-1">
+                <span class="font-bold text-emerald-400">3. RBS (Resistance Becomes Support)</span>
+                <p class="text-slate-400">Price breaks above resistance, then pulls back to test the old ceiling as a new floor (BUY).</p>
+              </div>
+              <div class="bg-terminal-card border border-terminal-border p-3.5 rounded-xl space-y-1">
+                <span class="font-bold text-rose-400">4. SBR (Support Becomes Resistance)</span>
+                <p class="text-slate-400">Price breaks below support, then pulls back to test the old floor as a new ceiling (SELL).</p>
+              </div>
+              <div class="bg-terminal-card border border-terminal-border p-3.5 rounded-xl space-y-1">
+                <span class="font-bold text-slate-200">5. OCL (Open-Close Level)</span>
+                <p class="text-slate-400">Major candle open/close horizontal alignment representing institutional equilibrium.</p>
+              </div>
+              <div class="bg-terminal-card border border-terminal-border p-3.5 rounded-xl space-y-1">
+                <span class="font-bold text-accent-gold">6. QM (Quasimodo Pattern)</span>
+                <p class="text-slate-400">Over-and-Under structure breaking structural swing; high-probability retest of the left shoulder.</p>
+              </div>
+              <div class="bg-terminal-card border border-terminal-border p-3.5 rounded-xl space-y-1 sm:col-span-2">
+                <span class="font-bold text-amber-400">7. Engulfing x Strong Order Block</span>
+                <p class="text-slate-400">An institutional order block that executed a prior liquidity sweep before printing an aggressive engulfing candle.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIT Inducement Rule Notice -->
+          <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl text-xs space-y-1 text-slate-300">
+            <span class="font-bold text-accent-gold uppercase tracking-wider block">Golden Strategy Mandate: Clearing Inducements</span>
+            <p>Inducements are bait created by Market Makers to trap early retail traders. Entering before Inducement is cleared has a severe failure rate. Always wait for the TS (Target Sweep) wick to grab retail stops before executing!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: SETTINGS ==================== -->
+    <section id="tab-settings" class="tab-content hidden space-y-6">
+      <div class="max-w-2xl mx-auto space-y-6">
+        <div class="bg-terminal-surface border border-terminal-border rounded-2xl p-6 shadow-xl space-y-5">
+          <div class="flex items-center justify-between border-b border-terminal-border/60 pb-3">
+            <div>
+              <h2 class="text-lg font-bold text-white">OpenRouter API & Model Settings</h2>
+              <p class="text-xs text-slate-400">Configure your personal OpenRouter API key and preferred model</p>
+            </div>
+            <i data-lucide="key" class="w-6 h-6 text-accent-gold"></i>
+          </div>
+
+          <!-- API Key Input -->
+          <div>
+            <label class="block text-xs text-slate-400 font-medium mb-1">OpenRouter API Key</label>
+            <div class="relative">
+              <input type="password" id="cfg-api-key" placeholder="sk-or-v1-..." class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white pr-20 focus:outline-none focus:border-cyan-400" />
+              <button type="button" onclick="toggleKeyVisibility()" class="absolute right-2.5 top-2.5 text-xs text-slate-400 hover:text-white">
+                Show
+              </button>
+            </div>
+            <span class="block text-[11px] text-terminal-muted mt-1">Saved locally in browser localStorage. Never transmitted to third parties.</span>
+          </div>
+
+          <!-- Model Picker -->
+          <div>
+            <label class="block text-xs text-slate-400 font-medium mb-1">AI Model</label>
+            <select id="cfg-model" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white focus:outline-none focus:border-cyan-400">
+              <option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash (Fast & Vision Multimodal - Recommended)</option>
+              <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Elite Reasoning)</option>
+              <option value="deepseek/deepseek-chat">DeepSeek Chat (Cost Effective)</option>
+              <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B</option>
+            </select>
+          </div>
+
+          <!-- Default Risk Settings -->
+          <div class="grid grid-cols-2 gap-3 border-t border-terminal-border/60 pt-4">
+            <div>
+              <label class="block text-xs text-slate-400 font-medium mb-1">Default Balance ($)</label>
+              <input type="number" id="cfg-balance" value="10000" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 font-medium mb-1">Default Risk %</label>
+              <input type="number" step="0.1" id="cfg-risk-pct" value="1.0" class="w-full bg-terminal-card border border-terminal-border rounded-xl px-3 py-2 text-sm mono text-white" />
+            </div>
+          </div>
+
+          <!-- Save Button -->
+          <div class="flex items-center space-x-3 pt-2">
+            <button onclick="saveSettings()" class="flex-1 py-2.5 bg-accent-cyan hover:bg-cyan-400 text-terminal-bg font-bold rounded-xl text-sm transition">
+              Save Settings
+            </button>
+            <button onclick="testOpenRouterConnection()" class="px-4 py-2.5 bg-terminal-card hover:bg-terminal-border border border-terminal-border text-slate-300 font-semibold rounded-xl text-sm transition">
+              Test Connection
+            </button>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="bg-terminal-surface border border-terminal-border rounded-2xl p-4 text-xs text-slate-400 flex items-start space-x-3">
+          <i data-lucide="shield" class="w-5 h-5 text-bear shrink-0 mt-0.5"></i>
+          <p>
+            <strong class="text-white">Risk Disclaimer:</strong> LIT Trade Assistant is a decision-support and rule validation tool, not an automated trading robot. Financial trading involves high risk; always manage your risk diligently.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Import JSON -->
+  <div id="modal-import" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-terminal-surface border border-terminal-border rounded-2xl max-w-lg w-full p-6 space-y-4">
+      <h3 class="text-base font-bold text-white">Import Trading Journal (JSON)</h3>
+      <textarea id="import-json-text" rows="6" placeholder="Paste your exported JSON array here..." class="w-full bg-terminal-card border border-terminal-border rounded-xl p-3 text-xs mono text-white focus:outline-none focus:border-cyan-400"></textarea>
+      <div class="flex justify-end space-x-2">
+        <button onclick="closeImportModal()" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+        <button onclick="confirmImportJson()" class="px-4 py-2 text-xs font-bold bg-accent-gold text-terminal-bg rounded-lg">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // App State
+    let currentSymbol = 'XAUUSD';
+    let currentDirection = 'BUY';
+    let currentPoiType = 'RBS';
+    let uploadedChartBase64 = null;
+    let journalTrades = JSON.parse(localStorage.getItem('lit_journal_trades') || '[]');
+    let journalFilter = 'ALL';
+
+    // Pip Unit mappings
+    function getPipUnit(sym) {
+      sym = sym.toUpperCase();
+      if (sym.includes('XAU') || sym.includes('GOLD')) return 0.10;
+      if (sym.includes('JPY')) return 0.01;
+      if (sym.includes('BTC') || sym.includes('US30')) return 1.0;
+      return 0.0001; // Standard Forex
+    }
+
+    function getPipValuePerLot(sym) {
+      sym = sym.toUpperCase();
+      if (sym.includes('XAU') || sym.includes('GOLD')) return 10.0; // 100 oz contract
+      if (sym.includes('JPY')) return 9.0;
+      if (sym.includes('BTC') || sym.includes('US30')) return 1.0;
+      return 10.0; // Standard Forex 100k
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-accent-cyan', 'bg-cyan-500/10', 'border', 'border-cyan-500/20');
+        btn.classList.add('text-slate-400');
+      });
+
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-btn-' + tabId);
+      activeBtn.classList.add('active', 'text-accent-cyan', 'bg-cyan-500/10', 'border', 'border-cyan-500/20');
+      activeBtn.classList.remove('text-slate-400');
+
+      if (tabId === 'strategy') {
+        drawStrategyCanvas();
+      }
+      if (tabId === 'journal') {
+        renderJournal();
+      }
+    }
+
+    function setSymbol(sym) {
+      currentSymbol = sym;
+      document.querySelectorAll('.sym-btn').forEach(b => {
+        b.classList.remove('active', 'bg-amber-500/15', 'text-accent-gold', 'border-amber-500/40');
+        b.classList.add('border-terminal-border', 'text-slate-400');
+      });
+      event.target.classList.add('active', 'bg-amber-500/15', 'text-accent-gold', 'border-amber-500/40');
+      event.target.classList.remove('border-terminal-border', 'text-slate-400');
+
+      if (sym === 'XAUUSD') {
+        document.getElementById('input-entry').value = '2650.00';
+      } else if (sym === 'EURUSD') {
+        document.getElementById('input-entry').value = '1.08500';
+      } else if (sym === 'GBPUSD') {
+        document.getElementById('input-entry').value = '1.29500';
+      } else if (sym === 'USDJPY') {
+        document.getElementById('input-entry').value = '152.50';
+      } else if (sym === 'BTCUSD') {
+        document.getElementById('input-entry').value = '68000.00';
+      }
+      applyAuto10PipPreset();
+    }
+
+    function setDirection(dir) {
+      currentDirection = dir;
+      const buyBtn = document.getElementById('btn-dir-buy');
+      const sellBtn = document.getElementById('btn-dir-sell');
+      if (dir === 'BUY') {
+        buyBtn.className = "py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition border bg-bull-container text-bull border-bull/50";
+        sellBtn.className = "py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition border border-terminal-border text-slate-400 hover:text-white";
+      } else {
+        sellBtn.className = "py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition border bg-bear-container text-bear border-bear/50";
+        buyBtn.className = "py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition border border-terminal-border text-slate-400 hover:text-white";
+      }
+      applyAuto10PipPreset();
+    }
+
+    function setPoiType(poi) {
+      currentPoiType = poi;
+      document.querySelectorAll('.poi-btn').forEach(b => {
+        b.classList.remove('bg-cyan-500/10', 'text-accent-cyan', 'border-cyan-500/40');
+        b.classList.add('border-terminal-border', 'text-slate-400');
+      });
+      event.target.classList.add('bg-cyan-500/10', 'text-accent-cyan', 'border-cyan-500/40');
+      event.target.classList.remove('border-terminal-border', 'text-slate-400');
+      runRecalculate();
+    }
+
+    function applyAuto10PipPreset() {
+      const entry = parseFloat(document.getElementById('input-entry').value) || 2650.0;
+      const pipUnit = getPipUnit(currentSymbol);
+      const slDist = 10.0 * pipUnit;
+      const tp1Dist = 25.0 * pipUnit;
+      const tp2Dist = 50.0 * pipUnit;
+
+      const sl = currentDirection === 'BUY' ? entry - slDist : entry + slDist;
+      const tp1 = currentDirection === 'BUY' ? entry + tp1Dist : entry - tp1Dist;
+      const tp2 = currentDirection === 'BUY' ? entry + tp2Dist : entry - tp2Dist;
+
+      const decimals = pipUnit <= 0.0001 ? 5 : (pipUnit <= 0.01 ? 3 : 2);
+      document.getElementById('input-sl').value = sl.toFixed(decimals);
+      document.getElementById('input-tp1').value = tp1.toFixed(decimals);
+      document.getElementById('input-tp2').value = tp2.toFixed(decimals);
+
+      runRecalculate();
+    }
+
+    // Mathematical Calculation
+    function runRecalculate() {
+      const entry = parseFloat(document.getElementById('input-entry').value) || 0;
+      const sl = parseFloat(document.getElementById('input-sl').value) || 0;
+      const tp1 = parseFloat(document.getElementById('input-tp1').value) || 0;
+      const tp2 = parseFloat(document.getElementById('input-tp2').value) || 0;
+
+      const pipUnit = getPipUnit(currentSymbol);
+      const pipValPerLot = getPipValuePerLot(currentSymbol);
+      const balance = parseFloat(localStorage.getItem('lit_balance') || '10000');
+      const riskPct = parseFloat(localStorage.getItem('lit_risk_pct') || '1.0');
+      const riskAmount = balance * (riskPct / 100.0);
+
+      const slDistance = Math.abs(entry - sl);
+      const slPips = pipUnit > 0 ? (slDistance / pipUnit) : 0;
+      const tp1Distance = Math.abs(tp1 - entry);
+      const tp1Pips = pipUnit > 0 ? (tp1Distance / pipUnit) : 0;
+      const tp2Distance = Math.abs(tp2 - entry);
+      const tp2Pips = pipUnit > 0 ? (tp2Distance / pipUnit) : 0;
+
+      const rr1 = slPips > 0.0001 ? (tp1Pips / slPips) : 0;
+      const rr2 = slPips > 0.0001 ? (tp2Pips / slPips) : 0;
+
+      const rawLots = (slPips > 0 && pipValPerLot > 0) ? (riskAmount / (slPips * pipValPerLot)) : 0;
+      const lots = Math.max(0.01, Math.round(rawLots * 100) / 100);
+
+      // Strategy conditions audit
+      const hasPoi = document.getElementById('chk-poi').checked;
+      const hasTrend = document.getElementById('chk-trend').checked;
+      const hasIdm = document.getElementById('chk-idm').checked;
+      const hasTs = document.getElementById('chk-ts').checked;
+      const hasRejection = document.getElementById('chk-rejection').checked;
+      const hasMss = document.getElementById('chk-mss').checked;
+
+      const missing = [];
+      if (!hasPoi) missing.push("No valid MSNR POI level identified on M15");
+      if (!hasTrend) missing.push("Trade opposes primary HTF structure");
+      if (!hasIdm) missing.push("Inducement (IDM) bait level not yet formed");
+      if (!hasTs) missing.push("Inducement has NOT been swept via TS (Target Sweep). DO NOT enter early!");
+      if (!hasRejection) missing.push("Candle Rejection (Pin Bar / wick) not confirmed");
+      if (!hasMss) missing.push("Market Structure Shift (MSS) on M1 not yet printed");
+
+      // Update Result UI
+      document.getElementById('res-symbol').textContent = currentSymbol;
+      const dirBadge = document.getElementById('res-dir-badge');
+      dirBadge.textContent = currentDirection;
+      dirBadge.className = currentDirection === 'BUY' 
+        ? "px-2.5 py-1 text-xs font-bold mono bg-bull-container text-bull border border-bull/40 rounded-lg"
+        : "px-2.5 py-1 text-xs font-bold mono bg-bear-container text-bear border border-bear/40 rounded-lg";
+
+      const statusBadge = document.getElementById('res-status-badge');
+      const resCard = document.getElementById('result-card');
+      const msgBox = document.getElementById('res-message-box');
+      const warningBox = document.getElementById('res-warning-box');
+      const missingList = document.getElementById('res-missing-list');
+
+      document.getElementById('res-entry').textContent = entry;
+      document.getElementById('res-sl').textContent = sl;
+      document.getElementById('res-sl-pips').textContent = slPips.toFixed(1);
+      document.getElementById('res-tp1').textContent = tp1;
+      document.getElementById('res-rr-tp1').textContent = `1:${rr1.toFixed(1)}`;
+      document.getElementById('res-tp2').textContent = tp2;
+      document.getElementById('res-rr-tp2').textContent = `1:${rr2.toFixed(1)}`;
+
+      document.getElementById('res-lots').textContent = `${lots.toFixed(2)} Lots`;
+      document.getElementById('res-risk-amt').textContent = `$${riskAmount.toFixed(2)}`;
+      document.getElementById('res-profit-tp1').textContent = `+$${(riskAmount * rr1).toFixed(2)}`;
+
+      if (missing.length === 0) {
+        statusBadge.textContent = "VALID SETUP";
+        statusBadge.className = "px-3 py-1 text-xs font-bold rounded-full bg-bull-container text-bull border border-bull/50";
+        resCard.className = "bg-terminal-surface border-2 border-bull rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5";
+        msgBox.className = "p-3.5 rounded-xl bg-bull-container/60 border border-bull/30 text-xs sm:text-sm text-slate-200 leading-relaxed";
+        msgBox.textContent = `HIGH-PROBABILITY ${currentDirection} SETUP: Price tapped M15 ${currentPoiType} zone, cleared Inducement via TS, printed clear candle rejection, and confirmed M1 MSS. Strict 10-pip SL model applied.`;
+        warningBox.classList.add('hidden');
+      } else {
+        const isNoTrade = !hasTs || !hasIdm || !hasTrend;
+        statusBadge.textContent = isNoTrade ? "NO TRADE" : "WAITING";
+        statusBadge.className = isNoTrade 
+          ? "px-3 py-1 text-xs font-bold rounded-full bg-bear-container text-bear border border-bear/50"
+          : "px-3 py-1 text-xs font-bold rounded-full bg-amber-500/10 text-accent-gold border border-amber-500/40";
+        resCard.className = isNoTrade 
+          ? "bg-terminal-surface border-2 border-bear rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5"
+          : "bg-terminal-surface border-2 border-amber-500 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5";
+        msgBox.className = isNoTrade
+          ? "p-3.5 rounded-xl bg-bear-container border border-bear/30 text-xs sm:text-sm text-rose-200 leading-relaxed font-semibold"
+          : "p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs sm:text-sm text-amber-200 leading-relaxed font-semibold";
+        msgBox.textContent = isNoTrade
+          ? "CRITICAL RULE: DO NOT FORCE TRADE. Market conditions violate your strategy rules."
+          : "SETUP DEVELOPING: Be patient. Wait for pending confirmations before pulling the trigger.";
+        
+        warningBox.classList.remove('hidden');
+        missingList.innerHTML = missing.map(m => `<li>${m}</li>`).join('');
+      }
+    }
+
+    function runMechanicalScan() {
+      runRecalculate();
+      alert("Mechanical LIT + MSNR Scan Complete! Result updated.");
+    }
+
+    // Standalone Calculator Tab
+    function runStandaloneCalc() {
+      const balance = parseFloat(document.getElementById('calc-balance').value) || 10000;
+      const riskPct = parseFloat(document.getElementById('calc-risk-pct').value) || 1.0;
+      const sym = document.getElementById('calc-symbol').value;
+      const entry = parseFloat(document.getElementById('calc-entry').value) || 0;
+      const sl = parseFloat(document.getElementById('calc-sl').value) || 0;
+      const tp1 = parseFloat(document.getElementById('calc-tp1').value) || 0;
+
+      const pipUnit = getPipUnit(sym);
+      const pipValPerLot = getPipValuePerLot(sym);
+      const riskAmount = balance * (riskPct / 100.0);
+
+      const slDistance = Math.abs(entry - sl);
+      const slPips = pipUnit > 0 ? (slDistance / pipUnit) : 0;
+      const tp1Distance = Math.abs(tp1 - entry);
+      const tp1Pips = pipUnit > 0 ? (tp1Distance / pipUnit) : 0;
+      const rr1 = slPips > 0 ? (tp1Pips / slPips) : 0;
+
+      const rawLots = (slPips > 0 && pipValPerLot > 0) ? (riskAmount / (slPips * pipValPerLot)) : 0;
+      const lots = Math.max(0.01, Math.round(rawLots * 100) / 100);
+
+      document.getElementById('calc-res-lot').textContent = lots.toFixed(2);
+      document.getElementById('calc-res-risk').textContent = `$${riskAmount.toFixed(2)}`;
+      document.getElementById('calc-res-profit').textContent = `+$${(riskAmount * rr1).toFixed(2)}`;
+    }
+
+    // Chart Image Handling
+    function handleChartUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        uploadedChartBase64 = event.target.result;
+        document.getElementById('chart-preview-img').src = uploadedChartBase64;
+        document.getElementById('chart-preview-container').classList.remove('hidden');
+        document.getElementById('btn-clear-chart').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearChart() {
+      uploadedChartBase64 = null;
+      document.getElementById('chart-file-input').value = '';
+      document.getElementById('chart-preview-container').classList.add('hidden');
+      document.getElementById('btn-clear-chart').classList.add('hidden');
+    }
+
+    // OpenRouter AI Scan
+    async function runAiScan() {
+      const apiKey = localStorage.getItem('lit_api_key');
+      if (!apiKey) {
+        alert("Please set your OpenRouter API Key in the Settings tab first!");
+        switchTab('settings');
+        return;
+      }
+      const model = localStorage.getItem('lit_model') || 'google/gemini-2.0-flash-001';
+      
+      const entry = document.getElementById('input-entry').value;
+      const sl = document.getElementById('input-sl').value;
+      const tp1 = document.getElementById('input-tp1').value;
+      const tp2 = document.getElementById('input-tp2').value;
+
+      const promptText = `Analyze this setup for ${currentSymbol} based strictly on LIT + MSNR rules:
+Direction: ${currentDirection}, POI: ${currentPoiType}, Entry: ${entry}, SL: ${sl}, TP1: ${tp1}, TP2: ${tp2}.
+Does price clear Inducement? Is there a TS wick and M1 MSS? If conditions are incomplete, answer NO_TRADE or WAIT. Output JSON with status, direction, entryPrice, stopLoss, takeProfit1, reason.`;
+
+      alert(`Scanning with OpenRouter model: ${model}... Please wait.`);
+
+      try {
+        let messages = [];
+        if (uploadedChartBase64) {
+          messages = [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: promptText },
+                { type: "image_url", image_url: { url: uploadedChartBase64 } }
+              ]
+            }
+          ];
+        } else {
+          messages = [{ role: "user", content: promptText }];
+        }
+
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://netlify.com",
+            "X-Title": "LIT Trade Assistant"
+          },
+          body: JSON.stringify({ model: model, messages: messages, temperature: 0.2 })
+        });
+
+        const data = await res.json();
+        if (data.choices && data.choices[0]) {
+          alert("OpenRouter Analysis:\n\n" + data.choices[0].message.content);
+        } else {
+          alert("OpenRouter Error: " + (data.error?.message || "Invalid response"));
+        }
+      } catch (err) {
+        alert("Network Error connecting to OpenRouter: " + err.message);
+      }
+    }
+
+    // Save To Journal
+    function saveCurrentSetupToJournal() {
+      const trade = {
+        id: Date.now(),
+        date: new Date().toLocaleString(),
+        symbol: currentSymbol,
+        direction: currentDirection,
+        poiType: currentPoiType,
+        entry: parseFloat(document.getElementById('input-entry').value) || 0,
+        sl: parseFloat(document.getElementById('input-sl').value) || 0,
+        tp1: parseFloat(document.getElementById('input-tp1').value) || 0,
+        tp2: parseFloat(document.getElementById('input-tp2').value) || 0,
+        lots: document.getElementById('res-lots').textContent,
+        risk: document.getElementById('res-risk-amt').textContent,
+        outcome: 'PENDING',
+        pnl: 0,
+        notes: `Validated on M15/M1 using LIT + MSNR ${currentPoiType} setup.`
+      };
+
+      journalTrades.unshift(trade);
+      localStorage.setItem('lit_journal_trades', JSON.stringify(journalTrades));
+      alert("Trade Setup saved to Journal! Check the Journal tab.");
+      renderJournal();
+    }
+
+    // Render Journal & Statistics
+    function renderJournal() {
+      const container = document.getElementById('journal-list');
+      const filtered = journalFilter === 'ALL' 
+        ? journalTrades 
+        : journalTrades.filter(t => t.outcome === journalFilter);
+
+      // Calculate Stats
+      const total = journalTrades.length;
+      const closed = journalTrades.filter(t => t.outcome !== 'PENDING');
+      const wins = closed.filter(t => t.outcome === 'WIN').length;
+      const losses = closed.filter(t => t.outcome === 'LOSS').length;
+      const bes = closed.filter(t => t.outcome === 'BREAKEVEN').length;
+      const winRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(1) : '0.0';
+      const netPnl = closed.reduce((acc, t) => acc + (parseFloat(t.pnl) || 0), 0);
+
+      document.getElementById('stat-winrate').textContent = `${winRate}%`;
+      document.getElementById('stat-pnl').textContent = netPnl >= 0 ? `+$${netPnl.toFixed(2)}` : `-$${Math.abs(netPnl).toFixed(2)}`;
+      document.getElementById('stat-pnl').className = `text-xl font-bold mono ${netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-record').textContent = `${wins} / ${losses} / ${bes}`;
+      document.getElementById('stat-rr').textContent = '1:2.5';
+      document.getElementById('stat-streak').textContent = wins > 0 ? `${wins} Wins` : '-';
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-terminal-surface border border-terminal-border rounded-xl p-8 text-center text-slate-400 text-xs">
+            No trades in this view. Run an analysis in the Analyzer tab and save setups to track them here.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => `
+        <div class="bg-terminal-surface border border-terminal-border rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-0.5 text-xs font-bold mono rounded ${t.direction === 'BUY' ? 'bg-bull-container text-bull' : 'bg-bear-container text-bear'}">${t.direction}</span>
+              <span class="font-bold mono text-white">${t.symbol}</span>
+              <span class="text-xs text-terminal-muted hidden sm:inline">• ${t.date}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <select onchange="updateOutcome(${t.id}, this.value)" class="text-xs bg-terminal-card border border-terminal-border rounded px-2 py-1 mono font-bold ${getOutcomeColor(t.outcome)}">
+                <option value="PENDING" ${t.outcome === 'PENDING' ? 'selected' : ''}>PENDING</option>
+                <option value="WIN" ${t.outcome === 'WIN' ? 'selected' : ''}>WIN</option>
+                <option value="LOSS" ${t.outcome === 'LOSS' ? 'selected' : ''}>LOSS</option>
+                <option value="BREAKEVEN" ${t.outcome === 'BREAKEVEN' ? 'selected' : ''}>BREAKEVEN</option>
+              </select>
+              <button onclick="deleteTrade(${t.id})" class="text-slate-500 hover:text-rose-400 transition p-1">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+            <div><span class="block text-[10px] text-slate-500">Entry</span><span class="mono font-bold">${t.entry}</span></div>
+            <div><span class="block text-[10px] text-slate-500">Stop Loss</span><span class="mono font-bold text-rose-400">${t.sl}</span></div>
+            <div><span class="block text-[10px] text-slate-500">TP 1</span><span class="mono font-bold text-emerald-400">${t.tp1}</span></div>
+            <div><span class="block text-[10px] text-slate-500">Lots</span><span class="mono font-bold text-accent-gold">${t.lots}</span></div>
+            <div><span class="block text-[10px] text-slate-500">Realized PnL</span><input type="number" value="${t.pnl || 0}" onblur="updatePnl(${t.id}, this.value)" class="w-20 bg-terminal-card border border-terminal-border rounded px-1.5 py-0.5 mono text-xs font-bold ${parseFloat(t.pnl) >= 0 ? 'text-emerald-400' : 'text-rose-400'}" /></div>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function getOutcomeColor(outcome) {
+      if (outcome === 'WIN') return 'text-emerald-400';
+      if (outcome === 'LOSS') return 'text-rose-400';
+      if (outcome === 'BREAKEVEN') return 'text-amber-400';
+      return 'text-cyan-400';
+    }
+
+    function updateOutcome(id, newOutcome) {
+      const trade = journalTrades.find(t => t.id === id);
+      if (trade) {
+        trade.outcome = newOutcome;
+        if (newOutcome === 'WIN' && trade.pnl === 0) trade.pnl = 250;
+        if (newOutcome === 'LOSS' && trade.pnl === 0) trade.pnl = -100;
+        localStorage.setItem('lit_journal_trades', JSON.stringify(journalTrades));
+        renderJournal();
+      }
+    }
+
+    function updatePnl(id, val) {
+      const trade = journalTrades.find(t => t.id === id);
+      if (trade) {
+        trade.pnl = parseFloat(val) || 0;
+        localStorage.setItem('lit_journal_trades', JSON.stringify(journalTrades));
+        renderJournal();
+      }
+    }
+
+    function deleteTrade(id) {
+      if (confirm("Delete this trade entry?")) {
+        journalTrades = journalTrades.filter(t => t.id !== id);
+        localStorage.setItem('lit_journal_trades', JSON.stringify(journalTrades));
+        renderJournal();
+      }
+    }
+
+    function setJournalFilter(filter) {
+      journalFilter = filter;
+      renderJournal();
+    }
+
+    function clearJournalConfirm() {
+      if (confirm("Clear all trade journal history?")) {
+        journalTrades = [];
+        localStorage.setItem('lit_journal_trades', '[]');
+        renderJournal();
+      }
+    }
+
+    // Export & Import
+    function exportJournal() {
+      const json = JSON.stringify(journalTrades, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lit_trade_journal_${Date.now()}.json`;
+      a.click();
+    }
+
+    function openImportModal() {
+      document.getElementById('modal-import').classList.remove('hidden');
+    }
+
+    function closeImportModal() {
+      document.getElementById('modal-import').classList.add('hidden');
+    }
+
+    function confirmImportJson() {
+      const text = document.getElementById('import-json-text').value;
+      try {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) {
+          journalTrades = parsed;
+          localStorage.setItem('lit_journal_trades', JSON.stringify(journalTrades));
+          alert(`Successfully imported ${parsed.length} trades!`);
+          closeImportModal();
+          renderJournal();
+        } else {
+          alert("Invalid JSON array.");
+        }
+      } catch (err) {
+        alert("JSON syntax error: " + err.message);
+      }
+    }
+
+    // Settings
+    function saveSettings() {
+      const key = document.getElementById('cfg-api-key').value.trim();
+      const model = document.getElementById('cfg-model').value;
+      const bal = document.getElementById('cfg-balance').value;
+      const risk = document.getElementById('cfg-risk-pct').value;
+
+      localStorage.setItem('lit_api_key', key);
+      localStorage.setItem('lit_model', model);
+      localStorage.setItem('lit_balance', bal);
+      localStorage.setItem('lit_risk_pct', risk);
+
+      alert("Settings saved successfully!");
+    }
+
+    function toggleKeyVisibility() {
+      const input = document.getElementById('cfg-api-key');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    async function testOpenRouterConnection() {
+      const key = document.getElementById('cfg-api-key').value.trim();
+      if (!key) {
+        alert("Enter API Key first.");
+        return;
+      }
+      const model = document.getElementById('cfg-model').value;
+      try {
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${key}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [{ role: "user", content: "Reply with 'CONNECTED'." }],
+            temperature: 0.1
+          })
+        });
+        const data = await res.json();
+        if (data.choices) {
+          alert(`Success! OpenRouter connection verified with model: ${model}`);
+        } else {
+          alert("API Error: " + (data.error?.message || "Failed"));
+        }
+      } catch (err) {
+        alert("Connection failed: " + err.message);
+      }
+    }
+
+    // Canvas Candlestick Drawing for Strategy Rules
+    function drawStrategyCanvas() {
+      const canvas = document.getElementById('strategy-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. POI Zone (Cyan Box)
+      ctx.fillStyle = "rgba(0, 229, 255, 0.15)";
+      ctx.fillRect(0, h * 0.15, w, h * 0.22);
+      ctx.strokeStyle = "rgba(0, 229, 255, 0.5)";
+      ctx.strokeRect(0, h * 0.15, w, h * 0.22);
+
+      ctx.fillStyle = "#00E5FF";
+      ctx.font = "bold 11px monospace";
+      ctx.fillText("POI ZONE (SBR / RESISTANCE)", 10, h * 0.26);
+
+      // 2. Inducement Line (Dashed Gold)
+      ctx.strokeStyle = "#FFD54F";
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(w * 0.1, h * 0.50);
+      ctx.lineTo(w * 0.9, h * 0.50);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#FFD54F";
+      ctx.fillText("INDUCEMENT (IDM) - RETAIL BAIT", 10, h * 0.47);
+
+      // Candle 1: Bullish push
+      drawCandle(ctx, w * 0.25, h * 0.45, h * 0.75, h * 0.50, h * 0.70, '#00E676');
+
+      // Candle 2: Minor Inducement bait candle
+      drawCandle(ctx, w * 0.40, h * 0.46, h * 0.70, h * 0.50, h * 0.65, '#FF5252');
+
+      // Candle 3: TS Sweep Spike piercing IDM and tapping POI with long wick
+      drawCandle(ctx, w * 0.60, h * 0.18, h * 0.58, h * 0.45, h * 0.55, '#FF5252', true);
+
+      // Candle 4: Large Bearish Expansion (MSS)
+      drawCandle(ctx, w * 0.78, h * 0.55, h * 0.92, h * 0.58, h * 0.88, '#FF5252');
+
+      // Annotations
+      ctx.fillStyle = "#FF5252";
+      ctx.fillText("TS SWEEP WICK", w * 0.55, h * 0.14);
+    }
+
+    function drawCandle(ctx, x, high, low, open, close, color, isSweep = false) {
+      // Wick
+      ctx.strokeStyle = isSweep ? '#FFFFFF' : color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, high);
+      ctx.lineTo(x, low);
+      ctx.stroke();
+
+      // Body
+      const bodyTop = Math.min(open, close);
+      const bodyHeight = Math.abs(close - open) || 4;
+      ctx.fillStyle = color;
+      ctx.fillRect(x - 10, bodyTop, 20, bodyHeight);
+    }
+
+    // Load Initial Config
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedKey = localStorage.getItem('lit_api_key');
+      if (savedKey) document.getElementById('cfg-api-key').value = savedKey;
+      const savedModel = localStorage.getItem('lit_model');
+      if (savedModel) document.getElementById('cfg-model').value = savedModel;
+      const savedBal = localStorage.getItem('lit_balance');
+      if (savedBal) document.getElementById('cfg-balance').value = savedBal;
+      const savedRisk = localStorage.getItem('lit_risk_pct');
+      if (savedRisk) document.getElementById('cfg-risk-pct').value = savedRisk;
+
+      applyAuto10PipPreset();
+      runRecalculate();
+    });
+  </script>
+</body>
+</html>
