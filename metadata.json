@@ -1,0 +1,6 @@
+{
+  "name": "LIT Trade Assistant",
+  "description": "Professional Forex & Gold (XAUUSD) trading assistant powered by LIT, MSNR, Target Sweep and Smart Money Concepts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
